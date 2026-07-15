@@ -14,9 +14,13 @@ type userHandler struct {
 	adminHandler domain.AdminHandler
 }
 
-func NewUserHandler(uc domain.UserUsecase) domain.UserHandler {
+func NewUserHandler(
+	uc domain.UserUsecase,
+	adminHandler domain.AdminHandler,
+) domain.UserHandler {
 	return &userHandler{
-		uc: uc,
+		uc:           uc,
+		adminHandler: adminHandler,
 	}
 }
 

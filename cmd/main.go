@@ -16,11 +16,17 @@ func main() {
 	}
 	defer db.Close()
 
-	repo := dbrepo.NewUserRepository(db)
+	// Repository
+	repoUser := dbrepo.NewUserRepository(db)
+	repoProduct := dbrepo.NewProductRepository(db)
 
-	uc := usecase.NewUserUsecase(repo)
+	// Usecase
+	ucUser := usecase.NewUserUsecase(repoUser)
+	ucAdmin := usecase.NewAdminUsecase(repoProduct)
 
-	handler := handlers.NewUserHandler(uc)
+	// handler
+	handlerAdmin := handlers.NewAdminHandler(ucAdmin)
+	handler := handlers.NewUserHandler(ucUser, handlerAdmin)
 
 	handler.Run()
 }

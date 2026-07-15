@@ -6,3 +6,6 @@ type AdminHandler interface {
 
 type AdminUsecase interface {
 }
+
+type ProductRepository interface {
+}
