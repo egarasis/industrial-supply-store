@@ -19,14 +19,17 @@ func main() {
 	// Repository
 	repoUser := dbrepo.NewUserRepository(db)
 	repoProduct := dbrepo.NewProductRepository(db)
+	repoOrder := dbrepo.NewOrderRepository(db)
 
 	// Usecase
 	ucUser := usecase.NewUserUsecase(repoUser)
 	ucAdmin := usecase.NewAdminUsecase(repoProduct)
+	ucCustomer := usecase.NewCustomerUsecase(db, repoOrder, repoProduct)
 
 	// handler
 	handlerAdmin := handlers.NewAdminHandler(ucAdmin)
-	handler := handlers.NewUserHandler(ucUser, handlerAdmin)
+	handlerCustomer := handlers.NewCustomerHandler(ucCustomer)
+	handler := handlers.NewUserHandler(ucUser, handlerAdmin, handlerCustomer)
 
 	handler.Run()
 }

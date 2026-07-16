@@ -175,3 +175,32 @@ func formatRupiah(amount float64) string {
 	}
 	return "Rp " + strings.Join(result, ".")
 }
+
+func (h *adminHandler) UpdateOrderStatus() {
+
+	// 	ctx := context.Background()
+
+	// 	reader := bufio.NewReader(os.Stdin)
+
+	// 	var orderID int
+	// 	var status string
+
+	// 	fmt.Print("Order ID : ")
+	// 	fmt.Fscanln(reader, &orderID)
+
+	// 	fmt.Print("Status (Pending/Processing/Shipped/Completed): ")
+	// 	fmt.Fscanln(reader, &status)
+
+	// 	err := h.orderUC.UpdateOrderStatus(
+	// 		ctx,
+	// 		orderID,
+	// 		status,
+	// 	)
+
+	// 	if err != nil {
+	// 		fmt.Println(err)
+	// 		return
+	// 	}
+
+	// fmt.Println("Order Updated Successfully")
+}
