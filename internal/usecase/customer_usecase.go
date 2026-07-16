@@ -13,18 +13,30 @@ type orderUsecase struct {
 	db          *sql.DB
 	orderRepo   domain.OrderRepository
 	productRepo domain.ProductRepository
+	userRepo    domain.UserRepository // Tambahkan ini
 }
 
 func NewCustomerUsecase(
 	db *sql.DB,
 	orderRepo domain.OrderRepository,
 	productRepo domain.ProductRepository,
+	userRepo domain.UserRepository, // Tambahkan parameter ini
 ) domain.OrderUsecase {
 	return &orderUsecase{
 		db:          db,
 		orderRepo:   orderRepo,
 		productRepo: productRepo,
+		userRepo:    userRepo, // Tambahkan ini
 	}
+}
+
+func (u *orderUsecase) UpdateProfile(ctx context.Context, userID int, fullName string, companyName string) error {
+	profile := entity.UserProfile{
+		UserID:      userID,
+		FullName:    fullName,
+		CompanyName: companyName,
+	}
+	return u.userRepo.UpdateProfile(ctx, profile)
 }
 
 func (u *orderUsecase) Checkout(

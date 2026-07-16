@@ -7,6 +7,7 @@ import (
 	"industrial-supply-store/internal/domain"
 	"industrial-supply-store/internal/model/entity"
 	"os"
+	"strings" // Tambahkan import ini untuk trim string
 )
 
 type CustomerHandler struct {
@@ -26,6 +27,7 @@ func (h *CustomerHandler) Run(userID int) {
 		fmt.Println("2. Checkout")
 		fmt.Println("3. My Orders")
 		fmt.Println("4. Order Detail")
+		fmt.Println("5. Update Profile") // Menu Baru
 		fmt.Println("0. Logout")
 
 		fmt.Print("Choose : ")
@@ -46,6 +48,9 @@ func (h *CustomerHandler) Run(userID int) {
 		case 4:
 			h.GetOrderDetail()
 
+		case 5:
+			h.UpdateProfile(userID) // Fungsi Baru
+
 		case 0:
 			fmt.Println("Logout...")
 			return
@@ -56,15 +61,37 @@ func (h *CustomerHandler) Run(userID int) {
 	}
 }
 
-func (h *CustomerHandler) Checkout(userID int) {
+// Tambahkan Fungsi Baru Ini
+func (h *CustomerHandler) UpdateProfile(userID int) {
+	reader := bufio.NewReader(os.Stdin)
 
+	fmt.Print("Enter Full Name: ")
+	fullName, _ := reader.ReadString('\n')
+	fullName = strings.TrimSpace(fullName)
+
+	fmt.Print("Enter Company Name: ")
+	companyName, _ := reader.ReadString('\n')
+	companyName = strings.TrimSpace(companyName)
+
+	ctx := context.Background()
+	// Pastikan method ini sudah ada di interface OrderUsecase kamu
+	err := h.orderUC.UpdateProfile(ctx, userID, fullName, companyName)
+
+	if err != nil {
+		fmt.Println("Error updating profile:", err)
+		return
+	}
+
+	fmt.Println("Profile updated successfully!")
+}
+
+func (h *CustomerHandler) Checkout(userID int) {
 	ctx := context.Background()
 	reader := bufio.NewReader(os.Stdin)
 
 	var cart []entity.CartItem
 
 	for {
-
 		var productID int
 		var qty int
 		var choice string
@@ -103,7 +130,6 @@ func (h *CustomerHandler) Checkout(userID int) {
 }
 
 func (h *CustomerHandler) GetMyOrders(userID int) {
-
 	ctx := context.Background()
 
 	orders, err := h.orderUC.GetMyOrders(
@@ -120,30 +146,24 @@ func (h *CustomerHandler) GetMyOrders(userID int) {
 	fmt.Println("========== MY ORDERS ==========")
 
 	for _, order := range orders {
-
 		fmt.Printf(
 			"Order ID : %d\n",
 			order.ID,
 		)
-
 		fmt.Printf(
 			"Total : %.2f\n",
 			order.TotalPrice,
 		)
-
 		fmt.Printf(
 			"Status : %s\n",
 			order.Status,
 		)
-
 		fmt.Println("----------------------------")
 	}
 }
 
 func (h *CustomerHandler) GetOrderDetail() {
-
 	ctx := context.Background()
-
 	reader := bufio.NewReader(os.Stdin)
 
 	var orderID int
@@ -167,37 +187,29 @@ func (h *CustomerHandler) GetOrderDetail() {
 	var total float64
 
 	for _, item := range items {
-
 		fmt.Printf(
 			"%s\n",
 			item.ProductName,
 		)
-
 		fmt.Printf(
 			"Price : %.2f\n",
 			item.Price,
 		)
-
 		fmt.Printf(
 			"Qty : %d\n",
 			item.Quantity,
 		)
-
 		fmt.Printf(
 			"Subtotal : %.2f\n",
 			item.Subtotal,
 		)
-
 		total += item.Subtotal
-
 		fmt.Println("----------------------")
 	}
-
 	fmt.Printf("TOTAL : %.2f\n", total)
 }
 
 func (h *CustomerHandler) viewProducts() {
-
 	ctx := context.Background()
 
 	products, err := h.orderUC.GetAllProducts(ctx)
@@ -226,6 +238,5 @@ func (h *CustomerHandler) viewProducts() {
 			product.Stock,
 		)
 	}
-
 	fmt.Println("---------------------------------------------------------------")
 }

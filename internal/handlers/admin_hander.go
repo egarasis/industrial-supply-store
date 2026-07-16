@@ -1,8 +1,10 @@
 package handlers
 
 import (
+	"bufio"
 	"context"
 	"fmt"
+	"os"
 	"strings"
 	"time"
 
@@ -11,12 +13,15 @@ import (
 )
 
 type adminHandler struct {
-	uc domain.AdminUsecase
+	uc     domain.AdminUsecase
+	userUC domain.UserUsecase // Ditambahkan untuk akses UpdateProfile
 }
 
-func NewAdminHandler(uc domain.AdminUsecase) domain.AdminHandler {
+// Update constructor agar menerima UserUsecase
+func NewAdminHandler(uc domain.AdminUsecase, userUC domain.UserUsecase) domain.AdminHandler {
 	return &adminHandler{
-		uc: uc,
+		uc:     uc,
+		userUC: userUC,
 	}
 }
 
@@ -33,6 +38,7 @@ func (h *adminHandler) Run() {
 		fmt.Println("8. Assign Category to Product")
 		fmt.Println("9. User Report - Paling Banyak Belanja")
 		fmt.Println("10. Stock Report - Stok Habis/0")
+		fmt.Println("11. Update Profile") // Menu baru
 		fmt.Println("0. Logout")
 
 		fmt.Print("Choose : ")
@@ -61,6 +67,8 @@ func (h *adminHandler) Run() {
 			h.showUserReport()
 		case 10:
 			h.showStockReport()
+		case 11:
+			h.updateProfile() // Memanggil fungsi baru
 		case 0:
 			fmt.Println("Logout...")
 			return
@@ -69,6 +77,42 @@ func (h *adminHandler) Run() {
 		}
 	}
 }
+
+// --- Fungsi Baru: Update Profile ---
+func (h *adminHandler) updateProfile() {
+	fmt.Println("\n--- Update Profile ---")
+	reader := bufio.NewReader(os.Stdin)
+
+	fmt.Print("Enter User ID to Update : ")
+	var userID int
+	fmt.Scanln(&userID)
+
+	fmt.Print("Enter Full Name         : ")
+	fullName, _ := reader.ReadString('\n')
+	fullName = strings.TrimSpace(fullName)
+
+	fmt.Print("Enter Company Name      : ")
+	companyName, _ := reader.ReadString('\n')
+	companyName = strings.TrimSpace(companyName)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	err := h.userUC.UpdateProfile(ctx, entity.UserProfile{
+		UserID:      userID,
+		FullName:    fullName,
+		CompanyName: companyName,
+	})
+
+	if err != nil {
+		fmt.Printf("Error updating profile: %v\n", err)
+		return
+	}
+
+	fmt.Println("Profile updated successfully!")
+}
+
+// --- Fungsi existing lainnya tetap di bawah sini ---
 
 func (h *adminHandler) listProducts() {
 	fmt.Println("\n--- List Products ---")
@@ -192,10 +236,6 @@ func formatRupiah(amount float64) string {
 	}
 	return "Rp " + strings.Join(result, ".")
 }
-
-// =========================================================================
-// HANDLER CLI UNTUK ASSIGN CATEGORY, USER REPORT, & STOCK REPORT
-// =========================================================================
 
 func (h *adminHandler) assignCategoryMenu() {
 	fmt.Println("\n--- Assign Category to Product ---")
