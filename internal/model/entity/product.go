@@ -9,3 +9,21 @@ type Product struct {
 	Stock     int       `json:"stock"`
 	CreatedAt time.Time `json:"created_at"`
 }
+
+type ProductWithSupplier struct {
+	ID           int
+	SupplierID   int
+	SupplierName string
+	ProductName  string
+	Description  string
+	Price        float64
+	Stock        int
+}
+
+type CartItem struct {
+	ProductID   int
+	ProductName string
+	Price       float64
+	Quantity    int
+	Subtotal    float64
+}
