@@ -14,21 +14,15 @@ type AdminUsecase interface {
 	AddProduct(ctx context.Context, product *entity.Product) error
 	UpdateProduct(ctx context.Context, product *entity.Product) error
 	DeleteProduct(ctx context.Context, id int) error
+<<<<<<< HEAD
 	AssignCategoryToProduct(ctx context.Context, productID, categoryID int) error
 	GetUserReport(ctx context.Context) ([]entity.UserReport, error)
 	GetStockReport(ctx context.Context) ([]entity.StockReport, error)
 }
+=======
+>>>>>>> a9d2308fdc4245458fd69dd2b7b286b0217a42fc
 
-// type ProductRepository interface {
-// 	FindAll(ctx context.Context) ([]entity.Product, error)
-// 	Create(ctx context.Context, product *entity.Product) error
-// 	Update(ctx context.Context, product *entity.Product) error
-// 	Delete(ctx context.Context, id int) error
-
-// 	GetAllProducts(ctx context.Context) ([]entity.ProductWithSupplier, error)
-// 	GetProductByID(ctx context.Context, id int) (entity.ProductWithSupplier, error)
-// 	CreateProduct(ctx context.Context, product entity.ProductWithSupplier) error
-// 	UpdateProduct(ctx context.Context, product entity.ProductWithSupplier) error
-// 	DeleteProduct(ctx context.Context, id int) error
-// 	UpdateStock(ctx context.Context, tx *sql.Tx, productID int, qty int) error
-// }
+	ListOrders(ctx context.Context) ([]entity.OrderWithUser, error)
+	GetOrdersByStatus(ctx context.Context, status string) ([]entity.OrderWithUser, error)
+	UpdateOrderStatus(ctx context.Context, orderID int, status string) error
+}

@@ -23,8 +23,13 @@ func main() {
 
 	// Usecase
 	ucUser := usecase.NewUserUsecase(repoUser)
+<<<<<<< HEAD
 	ucAdmin := usecase.NewAdminUsecase(repoProduct)
 	ucCustomer := usecase.NewCustomerUsecase(db, repoOrder, repoProduct, repoUser)
+=======
+	ucAdmin := usecase.NewAdminUsecase(repoProduct, repoOrder)
+	ucCustomer := usecase.NewCustomerUsecase(db, repoOrder, repoProduct)
+>>>>>>> a9d2308fdc4245458fd69dd2b7b286b0217a42fc
 
 	// handler
 	handlerAdmin := handlers.NewAdminHandler(ucAdmin, ucUser)

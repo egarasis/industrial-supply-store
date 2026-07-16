@@ -40,13 +40,13 @@ func (h *CustomerHandler) Run(userID int) {
 			h.viewProducts()
 
 		case 2:
-			h.Checkout(userID)
+			h.checkout(userID)
 
 		case 3:
-			h.GetMyOrders(userID)
+			h.getMyOrders(userID)
 
 		case 4:
-			h.GetOrderDetail()
+			h.getOrderDetail(userID)
 
 		case 5:
 			h.UpdateProfile(userID) // Fungsi Baru
@@ -61,9 +61,13 @@ func (h *CustomerHandler) Run(userID int) {
 	}
 }
 
+<<<<<<< HEAD
 // Tambahkan Fungsi Baru Ini
 func (h *CustomerHandler) UpdateProfile(userID int) {
 	reader := bufio.NewReader(os.Stdin)
+=======
+func (h *CustomerHandler) checkout(userID int) {
+>>>>>>> a9d2308fdc4245458fd69dd2b7b286b0217a42fc
 
 	fmt.Print("Enter Full Name: ")
 	fullName, _ := reader.ReadString('\n')
@@ -129,7 +133,12 @@ func (h *CustomerHandler) Checkout(userID int) {
 	fmt.Println("Checkout Success")
 }
 
+<<<<<<< HEAD
 func (h *CustomerHandler) GetMyOrders(userID int) {
+=======
+func (h *CustomerHandler) getMyOrders(userID int) {
+
+>>>>>>> a9d2308fdc4245458fd69dd2b7b286b0217a42fc
 	ctx := context.Background()
 
 	orders, err := h.orderUC.GetMyOrders(
@@ -162,7 +171,12 @@ func (h *CustomerHandler) GetMyOrders(userID int) {
 	}
 }
 
+<<<<<<< HEAD
 func (h *CustomerHandler) GetOrderDetail() {
+=======
+func (h *CustomerHandler) getOrderDetail(userID int) {
+
+>>>>>>> a9d2308fdc4245458fd69dd2b7b286b0217a42fc
 	ctx := context.Background()
 	reader := bufio.NewReader(os.Stdin)
 
@@ -174,6 +188,7 @@ func (h *CustomerHandler) GetOrderDetail() {
 	items, err := h.orderUC.GetOrderDetail(
 		ctx,
 		orderID,
+		userID,
 	)
 
 	if err != nil {

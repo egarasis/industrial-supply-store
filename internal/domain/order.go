@@ -13,6 +13,7 @@ type OrderRepository interface {
 	UpdateOrderTotal(ctx context.Context, tx *sql.Tx, orderID int, total float64) error
 	GetOrdersByUserID(ctx context.Context, userID int) ([]entity.Order, error)
 	GetOrderByID(ctx context.Context, orderID int) (entity.Order, error)
+<<<<<<< HEAD
 	GetOrderItems(ctx context.Context, orderID int) ([]entity.OrderItem, error)
 	UpdateOrderStatus(ctx context.Context, orderID int, status string) error // Tambahkan ini kalau dipakai
 }
@@ -25,4 +26,12 @@ type OrderUsecase interface {
 	UpdateOrderStatus(ctx context.Context, orderID int, status string) error
 	GetAllProducts(ctx context.Context) ([]entity.ProductWithSupplier, error)
 	UpdateProfile(ctx context.Context, userID int, fullName string, companyName string) error
+=======
+	GetOrderItems(ctx context.Context, orderID, userID int) ([]entity.OrderItem, error)
+
+	// Admin
+	GetAllOrders(ctx context.Context) ([]entity.OrderWithUser, error)
+	UpdateOrderStatus(ctx context.Context, orderID int, status string) error
+	GetOrdersByStatus(ctx context.Context, status string) ([]entity.OrderWithUser, error)
+>>>>>>> a9d2308fdc4245458fd69dd2b7b286b0217a42fc
 }

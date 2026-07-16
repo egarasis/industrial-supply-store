@@ -142,6 +142,10 @@ func (r *productRepository) GetProductByID(ctx context.Context, id int) (entity.
 		&product.Stock,
 	)
 
+	if err != nil {
+		err = errors.New("something went wrong. Please try again later.")
+	}
+
 	return product, err
 }
 
@@ -176,7 +180,11 @@ func (r *productRepository) CreateProduct(ctx context.Context, product entity.Pr
 		product.Stock,
 	)
 
-	return err
+	if err != nil {
+		return errors.New("something went wrong. Please try again later.")
+	}
+
+	return nil
 }
 
 func (r *productRepository) UpdateProduct(ctx context.Context, product entity.ProductWithSupplier) error {
@@ -203,7 +211,11 @@ func (r *productRepository) UpdateProduct(ctx context.Context, product entity.Pr
 		product.ID,
 	)
 
-	return err
+	if err != nil {
+		return errors.New("something went wrong. Please try again later.")
+	}
+
+	return nil
 }
 
 func (r *productRepository) DeleteProduct(ctx context.Context, id int) error {
@@ -213,7 +225,15 @@ func (r *productRepository) DeleteProduct(ctx context.Context, id int) error {
     `
 
 	_, err := r.db.ExecContext(ctx, query, id)
+<<<<<<< HEAD
 	return err
+=======
+	if err != nil {
+		return errors.New("something went wrong. Please try again later.")
+	}
+
+	return nil
+>>>>>>> a9d2308fdc4245458fd69dd2b7b286b0217a42fc
 }
 
 // =====================
@@ -236,12 +256,12 @@ func (r *productRepository) UpdateStock(ctx context.Context, tx *sql.Tx, product
 		qty,
 	)
 	if err != nil {
-		return err
+		return errors.New("something went wrong. Please try again later.")
 	}
 
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
-		return err
+		return errors.New("something went wrong. Please try again later")
 	}
 
 	if rowsAffected == 0 {
@@ -250,6 +270,7 @@ func (r *productRepository) UpdateStock(ctx context.Context, tx *sql.Tx, product
 
 	return nil
 }
+<<<<<<< HEAD
 
 // =========================================================================
 // JATAH TUGAS SAYA: QUERY ASSIGN CATEGORY, USER REPORT, & STOCK REPORT
@@ -306,3 +327,5 @@ func (r *productRepository) GetStockReport(ctx context.Context) ([]entity.StockR
 	}
 	return reports, nil
 }
+=======
+>>>>>>> a9d2308fdc4245458fd69dd2b7b286b0217a42fc
