@@ -145,6 +145,10 @@ func (r *productRepository) GetProductByID(ctx context.Context, id int) (entity.
 		&product.Stock,
 	)
 
+	if err != nil {
+		err = errors.New("something went wrong. Please try again later.")
+	}
+
 	return product, err
 }
 
@@ -179,7 +183,11 @@ func (r *productRepository) CreateProduct(ctx context.Context, product entity.Pr
 		product.Stock,
 	)
 
-	return err
+	if err != nil {
+		return errors.New("something went wrong. Please try again later.")
+	}
+
+	return nil
 }
 
 func (r *productRepository) UpdateProduct(ctx context.Context, product entity.ProductWithSupplier) error {
@@ -206,7 +214,11 @@ func (r *productRepository) UpdateProduct(ctx context.Context, product entity.Pr
 		product.ID,
 	)
 
-	return err
+	if err != nil {
+		return errors.New("something went wrong. Please try again later.")
+	}
+
+	return nil
 }
 
 func (r *productRepository) DeleteProduct(ctx context.Context, id int) error {
@@ -217,8 +229,11 @@ func (r *productRepository) DeleteProduct(ctx context.Context, id int) error {
 	`
 
 	_, err := r.db.ExecContext(ctx, query, id)
+	if err != nil {
+		return errors.New("something went wrong. Please try again later.")
+	}
 
-	return err
+	return nil
 }
 
 // =====================
@@ -248,12 +263,12 @@ func (r *productRepository) UpdateStock(
 	)
 
 	if err != nil {
-		return err
+		return errors.New("something went wrong. Please try again later.")
 	}
 
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
-		return err
+		return errors.New("something went wrong. Please try again later")
 	}
 
 	if rowsAffected == 0 {

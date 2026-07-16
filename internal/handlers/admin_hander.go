@@ -27,6 +27,11 @@ func (h *adminHandler) Run() {
 		fmt.Println("2. Add Product")
 		fmt.Println("3. Update Product")
 		fmt.Println("4. Delete Product")
+		fmt.Println("\n======================")
+		fmt.Println("5. List Orders")
+		fmt.Println("6. Update Status Orders to Completed")
+		fmt.Println("\n======================")
+		fmt.Println("7. Report Completed Orders")
 		fmt.Println("0. Logout")
 
 		fmt.Print("Choose : ")
@@ -43,6 +48,12 @@ func (h *adminHandler) Run() {
 			h.updateProduct()
 		case 4:
 			h.deleteProduct()
+		case 5:
+			h.listOrders()
+		case 6:
+			h.updateOrderStatusToCompleted()
+		case 7:
+			h.reportCompletedOrder()
 		case 0:
 			fmt.Println("Logout...")
 			return
@@ -176,31 +187,124 @@ func formatRupiah(amount float64) string {
 	return "Rp " + strings.Join(result, ".")
 }
 
-func (h *adminHandler) UpdateOrderStatus() {
+func (h *adminHandler) listOrders() {
 
-	// 	ctx := context.Background()
+	ctx := context.Background()
 
-	// 	reader := bufio.NewReader(os.Stdin)
+	orders, err := h.uc.ListOrders(ctx)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
 
-	// 	var orderID int
-	// 	var status string
+	if len(orders) == 0 {
+		fmt.Println("No orders found.")
+		return
+	}
 
-	// 	fmt.Print("Order ID : ")
-	// 	fmt.Fscanln(reader, &orderID)
+	fmt.Println("\n========================================== ALL ORDERS ==========================================")
+	fmt.Printf("%-5s %-30s %-12s %-12s %-20s\n",
+		"ID",
+		"Email",
+		"Total",
+		"Status",
+		"Order Date",
+	)
 
-	// 	fmt.Print("Status (Pending/Processing/Shipped/Completed): ")
-	// 	fmt.Fscanln(reader, &status)
+	fmt.Println("-----------------------------------------------------------------------------------------------")
 
-	// 	err := h.orderUC.UpdateOrderStatus(
-	// 		ctx,
-	// 		orderID,
-	// 		status,
-	// 	)
+	for _, order := range orders {
 
-	// 	if err != nil {
-	// 		fmt.Println(err)
-	// 		return
-	// 	}
+		fmt.Printf("%-5d %-30s Rp%-10.0f %-12s %-20s\n",
+			order.ID,
+			order.Email,
+			order.TotalPrice,
+			order.Status,
+			order.CreatedAt.Format("2006-01-02 15:04:05"),
+		)
+	}
 
-	// fmt.Println("Order Updated Successfully")
+	fmt.Println("-----------------------------------------------------------------------------------------------")
+}
+
+func (h *adminHandler) updateOrderStatusToCompleted() {
+
+	ctx := context.Background()
+
+	orders, err := h.uc.GetOrdersByStatus(ctx, entity.StatusPending)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+
+	if len(orders) == 0 {
+		fmt.Println("No pending orders.")
+		return
+	}
+
+	fmt.Println("\n==================== PENDING ORDERS ====================")
+	fmt.Printf("%-8s %-30s %-12s %-12s\n",
+		"ID",
+		"Email",
+		"Total",
+		"Status",
+	)
+
+	for _, order := range orders {
+
+		fmt.Printf("%-8d %-30s Rp%-10.0f %-12s\n",
+			order.ID,
+			order.Email,
+			order.TotalPrice,
+			order.Status,
+		)
+	}
+
+	var orderID int
+
+	fmt.Print("\nEnter Order ID to Complete : ")
+	fmt.Scanln(&orderID)
+
+	// Change to completed
+	err = h.uc.UpdateOrderStatus(ctx, orderID, entity.StatusCompleted)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+
+	fmt.Println("Order updated successfully.")
+}
+
+func (h *adminHandler) reportCompletedOrder() {
+
+	ctx := context.Background()
+
+	orders, err := h.uc.GetOrdersByStatus(ctx, entity.StatusCompleted)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+
+	if len(orders) == 0 {
+		fmt.Println("No pending orders.")
+		return
+	}
+
+	fmt.Println("\n==================== COMPLETED ORDERS ====================")
+	fmt.Printf("%-8s %-30s %-12s %-12s\n",
+		"ID",
+		"Email",
+		"Total",
+		"Status",
+	)
+
+	for _, order := range orders {
+
+		fmt.Printf("%-8d %-30s Rp%-10.0f %-12s\n",
+			order.ID,
+			order.Email,
+			order.TotalPrice,
+			order.Status,
+		)
+	}
 }

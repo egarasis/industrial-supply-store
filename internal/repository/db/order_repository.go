@@ -18,9 +18,7 @@ func NewOrderRepository(db *sql.DB) domain.OrderRepository {
 	}
 }
 
-// =====================
 // CHECKOUT
-// =====================
 
 func (r *orderRepository) CreateOrder(
 	ctx context.Context,
@@ -121,9 +119,7 @@ func (r *orderRepository) UpdateOrderTotal(
 	return err
 }
 
-// =====================
 // CUSTOMER
-// =====================
 
 func (r *orderRepository) GetOrdersByUserID(
 	ctx context.Context,
@@ -207,22 +203,25 @@ func (r *orderRepository) GetOrderByID(
 
 func (r *orderRepository) GetOrderItems(
 	ctx context.Context,
-	orderID int,
+	orderID, userID int,
 ) ([]entity.OrderItem, error) {
 
 	query := `
-	SELECT
+		SELECT
 		p.product_name,
 		p.price,
 		oi.quantity,
 		oi.subtotal
 	FROM order_items oi
 	JOIN products p
-	ON oi.product_id = p.id
-	WHERE oi.order_id = ?;
+		ON oi.product_id = p.id
+	JOIN orders o
+		ON oi.order_id = o.id
+	WHERE oi.order_id = ?
+		AND o.user_id = ?;
 	`
 
-	rows, err := r.db.QueryContext(ctx, query, orderID)
+	rows, err := r.db.QueryContext(ctx, query, orderID, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -257,17 +256,20 @@ func (r *orderRepository) GetOrderItems(
 
 func (r *orderRepository) GetAllOrders(
 	ctx context.Context,
-) ([]entity.Order, error) {
+) ([]entity.OrderWithUser, error) {
 
 	query := `
 	SELECT
-		id,
-		user_id,
-		total_price,
-		status,
-		created_at
-	FROM orders
-	ORDER BY created_at DESC;
+		o.id,
+		o.user_id,
+		u.email,
+		o.total_price,
+		o.status,
+		o.created_at
+	FROM orders o
+	JOIN users u
+		ON o.user_id = u.id
+	ORDER BY o.created_at DESC;
 	`
 
 	rows, err := r.db.QueryContext(ctx, query)
@@ -276,20 +278,20 @@ func (r *orderRepository) GetAllOrders(
 	}
 	defer rows.Close()
 
-	var orders []entity.Order
+	var orders []entity.OrderWithUser
 
 	for rows.Next() {
 
-		var order entity.Order
+		var order entity.OrderWithUser
 
 		err := rows.Scan(
 			&order.ID,
 			&order.UserID,
+			&order.Email,
 			&order.TotalPrice,
 			&order.Status,
 			&order.CreatedAt,
 		)
-
 		if err != nil {
 			return nil, err
 		}
@@ -320,4 +322,55 @@ func (r *orderRepository) UpdateOrderStatus(
 	)
 
 	return err
+}
+
+func (r *orderRepository) GetOrdersByStatus(
+	ctx context.Context,
+	status string,
+) ([]entity.OrderWithUser, error) {
+
+	query := `
+	SELECT
+		o.id,
+		o.user_id,
+		u.email,
+		o.total_price,
+		o.status,
+		o.created_at
+	FROM orders o
+	JOIN users u
+		ON o.user_id = u.id
+	WHERE o.status = ?
+	ORDER BY o.created_at ASC;
+	`
+
+	rows, err := r.db.QueryContext(ctx, query, status)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var orders []entity.OrderWithUser
+
+	for rows.Next() {
+
+		var order entity.OrderWithUser
+
+		err := rows.Scan(
+			&order.ID,
+			&order.UserID,
+			&order.Email,
+			&order.TotalPrice,
+			&order.Status,
+			&order.CreatedAt,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		orders = append(orders, order)
+	}
+
+	return orders, nil
 }

@@ -44,7 +44,7 @@ func (h *CustomerHandler) Run(userID int) {
 			h.GetMyOrders(userID)
 
 		case 4:
-			h.GetOrderDetail()
+			h.GetOrderDetail(userID)
 
 		case 0:
 			fmt.Println("Logout...")
@@ -140,7 +140,7 @@ func (h *CustomerHandler) GetMyOrders(userID int) {
 	}
 }
 
-func (h *CustomerHandler) GetOrderDetail() {
+func (h *CustomerHandler) GetOrderDetail(userID int) {
 
 	ctx := context.Background()
 
@@ -154,6 +154,7 @@ func (h *CustomerHandler) GetOrderDetail() {
 	items, err := h.orderUC.GetOrderDetail(
 		ctx,
 		orderID,
+		userID,
 	)
 
 	if err != nil {

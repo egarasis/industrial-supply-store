@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"industrial-supply-store/internal/domain"
 	"industrial-supply-store/internal/model/entity"
+	"strings"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -23,6 +24,7 @@ func (u *userUsecase) Register(email, password, role string) error {
 	ctx := context.Background()
 
 	// Validate role
+	role = strings.ToLower(strings.TrimSpace(role))
 	if role != entity.RoleAdmin &&
 		role != entity.RoleCustomer {
 
