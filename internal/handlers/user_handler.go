@@ -7,26 +7,31 @@ import (
 	"industrial-supply-store/internal/model/entity"
 	"os"
 	"strings"
+
+	"golang.org/x/term"
 )
 
 type userHandler struct {
-	uc           domain.UserUsecase
-	adminHandler domain.AdminHandler
+	uc              domain.UserUsecase
+	adminHandler    domain.AdminHandler
+	customerHandler domain.CustomerHandler
 }
 
 func NewUserHandler(
 	uc domain.UserUsecase,
 	adminHandler domain.AdminHandler,
+	customerHandler domain.CustomerHandler,
 ) domain.UserHandler {
 	return &userHandler{
-		uc:           uc,
-		adminHandler: adminHandler,
+		uc:              uc,
+		adminHandler:    adminHandler,
+		customerHandler: customerHandler,
 	}
 }
 
 func (h *userHandler) Run() {
 	for {
-		fmt.Println("\n===== Welcome =====")
+		fmt.Println("\n===== Welcome To Industrial Tool Store =====")
 		fmt.Println("1. Login")
 		fmt.Println("2. Register")
 		fmt.Println("0. Exit")
@@ -58,13 +63,19 @@ func (h *userHandler) create() {
 	email, _ := reader.ReadString('\n')
 
 	fmt.Print("Password : ")
-	password, _ := reader.ReadString('\n')
+	// To make it invisible when input
+	passwordBytes, passErr := term.ReadPassword(int(os.Stdin.Fd()))
+	if passErr != nil {
+		fmt.Println("Error:", passErr)
+		return
+	}
+	fmt.Println()
 
 	fmt.Print("Role (ADMIN, CUSTOMER): ")
 	role, _ := reader.ReadString('\n')
 
 	email = strings.TrimSpace(email)
-	password = strings.TrimSpace(password)
+	password := strings.TrimSpace(string(passwordBytes))
 	role = strings.TrimSpace(role)
 
 	err := h.uc.Register(email, password, role)
@@ -83,10 +94,15 @@ func (h *userHandler) login() {
 	email, _ := reader.ReadString('\n')
 
 	fmt.Print("Password : ")
-	password, _ := reader.ReadString('\n')
+	passwordBytes, passErr := term.ReadPassword(int(os.Stdin.Fd()))
+	if passErr != nil {
+		fmt.Println("Error:", passErr)
+		return
+	}
+	fmt.Println()
 
 	email = strings.TrimSpace(email)
-	password = strings.TrimSpace(password)
+	password := strings.TrimSpace(string(passwordBytes))
 
 	user, err := h.uc.Login(email, password)
 	if err != nil {
@@ -100,94 +116,8 @@ func (h *userHandler) login() {
 	if user.Role == entity.RoleAdmin {
 		h.adminHandler.Run()
 	}
+
+	if user.Role == entity.RoleCustomer {
+		h.customerHandler.Run(user.ID)
+	}
 }
-
-// func (h *userHandler) list() {
-
-// 	users, err := h.uc.GetAll()
-// 	if err != nil {
-// 		fmt.Println(err)
-// 		return
-// 	}
-
-// 	fmt.Println()
-
-// 	for _, user := range users {
-// 		fmt.Printf("%d | %s | %s\n",
-// 			user.ID,
-// 			user.Name,
-// 			user.Email,
-// 		)
-// 	}
-// }
-
-// func (h *userHandler) detail() {
-
-// 	reader := bufio.NewReader(os.Stdin)
-
-// 	fmt.Print("User ID : ")
-
-// 	text, _ := reader.ReadString('\n')
-
-// 	id, _ := strconv.Atoi(strings.TrimSpace(text))
-
-// 	user, err := h.uc.GetByID(id)
-
-// 	if err != nil {
-// 		fmt.Println(err)
-// 		return
-// 	}
-
-// 	fmt.Println()
-// 	fmt.Println("ID    :", user.ID)
-// 	fmt.Println("Name  :", user.Name)
-// 	fmt.Println("Email :", user.Email)
-// }
-
-// func (h *userHandler) update() {
-
-// 	reader := bufio.NewReader(os.Stdin)
-
-// 	fmt.Print("ID : ")
-// 	idText, _ := reader.ReadString('\n')
-
-// 	id, _ := strconv.Atoi(strings.TrimSpace(idText))
-
-// 	fmt.Print("New Name : ")
-// 	name, _ := reader.ReadString('\n')
-
-// 	fmt.Print("New Email : ")
-// 	email, _ := reader.ReadString('\n')
-
-// 	name = strings.TrimSpace(name)
-// 	email = strings.TrimSpace(email)
-
-// 	err := h.uc.Update(id, name, email)
-
-// 	if err != nil {
-// 		fmt.Println(err)
-// 		return
-// 	}
-
-// 	fmt.Println("User updated successfully.")
-// }
-
-// func (h *userHandler) delete() {
-
-// 	reader := bufio.NewReader(os.Stdin)
-
-// 	fmt.Print("User ID : ")
-
-// 	text, _ := reader.ReadString('\n')
-
-// 	id, _ := strconv.Atoi(strings.TrimSpace(text))
-
-// 	err := h.uc.Delete(id)
-
-// 	if err != nil {
-// 		fmt.Println(err)
-// 		return
-// 	}
-
-// 	fmt.Println("User deleted successfully.")
-// }

@@ -4,74 +4,32 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"industrial-supply-store/internal/domain"
 	"industrial-supply-store/internal/model/entity"
 )
 
-type userRepository struct {
+type UserRepository struct {
 	db *sql.DB
 }
 
-func NewUserRepository(db *sql.DB) domain.UserRepository {
-	return &userRepository{
-		db: db,
-	}
+func NewUserRepository(db *sql.DB) *UserRepository {
+	return &UserRepository{db: db}
 }
 
-func (r *userRepository) Create(ctx context.Context, user *entity.User) (*entity.User, error) {
+// --- FUNGSI WAJIB SESUAI INTERFACE ---
 
-	query := `
-		INSERT INTO users (email, password, role)
-		VALUES (?, ?, ?)
-	`
-
+func (r *UserRepository) Create(ctx context.Context, user *entity.User) (*entity.User, error) {
+	query := `INSERT INTO users (email, password, role) VALUES (?, ?, ?)`
 	result, err := r.db.ExecContext(ctx, query, user.Email, user.Password, user.Role)
 	if err != nil {
 		return nil, err
 	}
-
-	id, err := result.LastInsertId()
-	if err != nil {
-		return nil, err
-	}
-
-	user.ID = int(id)
-
+	lastID, _ := result.LastInsertId()
+	user.ID = int(lastID)
 	return user, nil
 }
 
-func (r *userRepository) FindByEmail(ctx context.Context, email string) (*entity.User, error) {
-
-	var user entity.User
-
-	query := `
-	SELECT
-		id,
-		email,
-		password,
-		role
-	FROM users
-	WHERE email= ?
-	`
-
-	err := r.db.QueryRowContext(ctx, query, email).Scan(
-		&user.ID,
-		&user.Email,
-		&user.Password,
-		&user.Role,
-	)
-
-	return &user, err
-}
-
-func (r *userRepository) FindAll(ctx context.Context) ([]entity.User, error) {
-
-	query := `
-		SELECT id, email, role
-		FROM users
-		ORDER BY id
-	`
-
+func (r *UserRepository) FindAll(ctx context.Context) ([]entity.User, error) {
+	query := `SELECT id, email, password, role FROM users`
 	rows, err := r.db.QueryContext(ctx, query)
 	if err != nil {
 		return nil, err
@@ -79,112 +37,90 @@ func (r *userRepository) FindAll(ctx context.Context) ([]entity.User, error) {
 	defer rows.Close()
 
 	var users []entity.User
-
 	for rows.Next() {
-
-		var user entity.User
-
-		err := rows.Scan(
-			&user.ID,
-			&user.Email,
-			&user.Role,
-		)
-
-		if err != nil {
+		var u entity.User
+		if err := rows.Scan(&u.ID, &u.Email, &u.Password, &u.Role); err != nil {
 			return nil, err
 		}
-
-		users = append(users, user)
+		users = append(users, u)
 	}
-
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-
 	return users, nil
 }
 
-func (r *userRepository) FindByID(ctx context.Context, id int) (*entity.User, error) {
+func (r *UserRepository) FindByID(ctx context.Context, id int) (*entity.User, error) {
+	query := `SELECT id, email, password, role FROM users WHERE id = ?`
+	row := r.db.QueryRowContext(ctx, query, id)
 
-	query := `
-		SELECT id, name, email
-		FROM users
-		WHERE id = ?
-	`
-
-	var user entity.User
-
-	err := r.db.QueryRowContext(ctx, query, id).Scan(
-		&user.ID,
-		&user.Email,
-		&user.Role,
-	)
-
+	var u entity.User
+	err := row.Scan(&u.ID, &u.Email, &u.Password, &u.Role)
 	if err != nil {
-
-		if errors.Is(err, sql.ErrNoRows) {
+		if err == sql.ErrNoRows {
 			return nil, errors.New("user not found")
 		}
-
 		return nil, err
 	}
-
-	return &user, nil
+	return &u, nil
 }
 
-func (r *userRepository) Update(ctx context.Context, user *entity.User) error {
+func (r *UserRepository) FindByEmail(ctx context.Context, email string) (*entity.User, error) {
+	query := `SELECT id, email, password, role FROM users WHERE email = ?`
+	row := r.db.QueryRowContext(ctx, query, email)
 
+	var u entity.User
+	err := row.Scan(&u.ID, &u.Email, &u.Password, &u.Role)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errors.New("user not found")
+		}
+		return nil, err
+	}
+	return &u, nil
+}
+
+func (r *UserRepository) Update(ctx context.Context, user *entity.User) error {
+	query := `UPDATE users SET email = ?, password = ?, role = ? WHERE id = ?`
+	_, err := r.db.ExecContext(ctx, query, user.Email, user.Password, user.Role, user.ID)
+	return err
+}
+
+func (r *UserRepository) Delete(ctx context.Context, id int) error {
+	// Catatan: Pastikan ini sesuai dengan tabel yang ingin kamu hapus
+	query := `DELETE FROM user_profiles WHERE user_id = ?`
+	_, err := r.db.ExecContext(ctx, query, id)
+	return err
+}
+
+// Ganti bagian ini: func (r *userRepository)
+// Menjadi: func (r *UserRepository)
+
+func (r *UserRepository) UpdateProfile(ctx context.Context, profile entity.UserProfile) error {
+	// Query diperbarui agar mencakup contact_name, phone, dan address
 	query := `
-		UPDATE users
-		SET
-			email = ?,
-			role = ?
-		WHERE id = ?
-	`
+        INSERT INTO user_profiles (user_id, full_name, company_name, contact_name, phone, address)
+        VALUES (?, ?, ?, ?, ?, ?)
+        ON DUPLICATE KEY UPDATE 
+            full_name = ?, 
+            company_name = ?,
+            contact_name = ?,
+            phone = ?,
+            address = ?;
+    `
 
-	result, err := r.db.ExecContext(
+	_, err := r.db.ExecContext(
 		ctx,
 		query,
-		user.Email,
-		user.Role,
+		profile.UserID,
+		profile.FullName,
+		profile.CompanyName,
+		profile.ContactName, // Parameter insert
+		profile.Phone,       // Parameter insert
+		profile.Address,     // Parameter insert
+		profile.FullName,    // Parameter update (jika data user sudah ada)
+		profile.CompanyName, // Parameter update (jika data user sudah ada)
+		profile.ContactName, // Parameter update (jika data user sudah ada)
+		profile.Phone,       // Parameter update (jika data user sudah ada)
+		profile.Address,     // Parameter update (jika data user sudah ada)
 	)
 
-	if err != nil {
-		return err
-	}
-
-	rows, err := result.RowsAffected()
-	if err != nil {
-		return err
-	}
-
-	if rows == 0 {
-		return errors.New("user not found")
-	}
-
-	return nil
-}
-
-func (r *userRepository) Delete(ctx context.Context, id int) error {
-
-	query := `
-		DELETE FROM users
-		WHERE id = ?
-	`
-
-	result, err := r.db.ExecContext(ctx, query, id)
-	if err != nil {
-		return err
-	}
-
-	rows, err := result.RowsAffected()
-	if err != nil {
-		return err
-	}
-
-	if rows == 0 {
-		return errors.New("user not found")
-	}
-
-	return nil
+	return err
 }

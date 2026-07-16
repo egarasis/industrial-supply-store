@@ -19,14 +19,20 @@ func main() {
 	// Repository
 	repoUser := dbrepo.NewUserRepository(db)
 	repoProduct := dbrepo.NewProductRepository(db)
+	repoOrder := dbrepo.NewOrderRepository(db)
 
 	// Usecase
 	ucUser := usecase.NewUserUsecase(repoUser)
-	ucAdmin := usecase.NewAdminUsecase(repoProduct)
+	ucAdmin := usecase.NewAdminUsecase(repoProduct, repoOrder)
+	ucCustomer := usecase.NewCustomerUsecase(db, repoOrder, repoProduct, repoUser)
 
 	// handler
-	handlerAdmin := handlers.NewAdminHandler(ucAdmin)
-	handler := handlers.NewUserHandler(ucUser, handlerAdmin)
+	handlerAdmin := handlers.NewAdminHandler(ucAdmin, ucUser)
+
+	// PERBAIKAN DI SINI: Tambahkan ucUser sebagai parameter kedua
+	handlerCustomer := handlers.NewCustomerHandler(ucCustomer, ucUser)
+
+	handler := handlers.NewUserHandler(ucUser, handlerAdmin, handlerCustomer)
 
 	handler.Run()
 }

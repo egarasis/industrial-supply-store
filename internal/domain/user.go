@@ -12,6 +12,7 @@ type UserRepository interface {
 	FindByEmail(ctx context.Context, email string) (*entity.User, error)
 	Update(ctx context.Context, user *entity.User) error
 	Delete(ctx context.Context, id int) error
+	UpdateProfile(ctx context.Context, profile entity.UserProfile) error
 }
 
 type UserUsecase interface {
@@ -19,8 +20,7 @@ type UserUsecase interface {
 	Register(email, password, role string) error
 	GetAll() ([]entity.User, error)
 	GetByID(id int) (*entity.User, error)
-	// Update(id int, name, email string) error
-	// Delete(id int) error
+	UpdateProfile(ctx context.Context, profile entity.UserProfile) error
 }
 
 type AuthUsecase interface {

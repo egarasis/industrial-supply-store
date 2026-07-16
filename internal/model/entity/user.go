@@ -9,7 +9,7 @@ type User struct {
 	ID       int
 	Email    string
 	Password string
-	Role     string // ADMIN, CUSTOMER
+	Role     string
 }
 
 type UserProfile struct {
@@ -17,9 +17,10 @@ type UserProfile struct {
 	UserID      int
 	Email       string
 	Password    string
-	Role        string // ADMIN, CUSTOMER
+	Role        string
 	CompanyName string
 	ContactName string
 	Phone       string
 	Address     string
+	FullName    string
 }
