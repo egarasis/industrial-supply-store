@@ -12,6 +12,7 @@ type OrderRepository interface {
 	CreateOrder(ctx context.Context, tx *sql.Tx, order entity.Order) (int, error)
 	CreateOrderItem(ctx context.Context, tx *sql.Tx, item entity.OrderItem) error
 	UpdateOrderTotal(ctx context.Context, tx *sql.Tx, orderID int, total float64) error
+	Checkout(ctx context.Context, userID int, cart []entity.CartItem) error
 
 	// Customer
 	GetOrdersByUserID(ctx context.Context, userID int) ([]entity.Order, error)
