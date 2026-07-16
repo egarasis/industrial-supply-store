@@ -3,22 +3,33 @@ package db
 import (
 	"context"
 	"database/sql"
+	"errors"
 
 	"industrial-supply-store/internal/domain"
 	"industrial-supply-store/internal/model/entity"
 )
 
 type orderRepository struct {
-	db *sql.DB
+	db          *sql.DB
+	productRepo domain.ProductRepository
 }
 
-func NewOrderRepository(db *sql.DB) domain.OrderRepository {
+// func NewOrderRepository(db *sql.DB) domain.OrderRepository {
+// 	return &orderRepository{
+// 		db: db,
+// 	}
+// }
+
+func NewOrderRepository(
+	db *sql.DB,
+	productRepo domain.ProductRepository,
+) domain.OrderRepository {
+
 	return &orderRepository{
-		db: db,
+		db:          db,
+		productRepo: productRepo,
 	}
 }
-
-// CHECKOUT
 
 func (r *orderRepository) CreateOrder(
 	ctx context.Context,
@@ -373,4 +384,68 @@ func (r *orderRepository) GetOrdersByStatus(
 	}
 
 	return orders, nil
+}
+
+func (r *orderRepository) Checkout(
+	ctx context.Context,
+	userID int,
+	cart []entity.CartItem,
+) error {
+
+	tx, err := r.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	defer tx.Rollback()
+
+	order := entity.Order{
+		UserID:     userID,
+		TotalPrice: 0,
+		Status:     "Pending",
+	}
+
+	orderID, err := r.CreateOrder(ctx, tx, order)
+	if err != nil {
+		return err
+	}
+
+	var total float64
+
+	for _, cartItem := range cart {
+
+		product, err := r.productRepo.GetProductByID(ctx, cartItem.ProductID)
+		if err != nil {
+			return err
+		}
+
+		if product.Stock < cartItem.Quantity {
+			return errors.New("stock is not enough")
+		}
+
+		subtotal := product.Price * float64(cartItem.Quantity)
+
+		item := entity.OrderItem{
+			OrderID:   orderID,
+			ProductID: product.ID,
+			Quantity:  cartItem.Quantity,
+			Subtotal:  subtotal,
+		}
+
+		if err := r.CreateOrderItem(ctx, tx, item); err != nil {
+			return err
+		}
+
+		if err := r.productRepo.UpdateStock(ctx, tx, product.ID, cartItem.Quantity); err != nil {
+			return err
+		}
+
+		total += subtotal
+	}
+
+	if err := r.UpdateOrderTotal(ctx, tx, orderID, total); err != nil {
+		return err
+	}
+
+	return tx.Commit()
 }
