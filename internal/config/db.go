@@ -13,7 +13,7 @@ func InitDB() (*sql.DB, error) {
 	host := os.Getenv("DB_HOST")
 	port := os.Getenv("DB_PORT")
 	user := os.Getenv("DB_USER")
-	pass := ("Skondegay29")
+	pass := os.Getenv("DB_PASSWORD")
 	name := os.Getenv("DB_NAME")
 
 	if user == "" {
