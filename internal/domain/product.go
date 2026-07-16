@@ -11,6 +11,9 @@ type ProductRepository interface {
 	Create(ctx context.Context, product *entity.Product) error
 	Update(ctx context.Context, product *entity.Product) error
 	Delete(ctx context.Context, id int) error
+	AssignCategory(ctx context.Context, productID, categoryID int) error
+	GetUserReport(ctx context.Context) ([]entity.UserReport, error)
+	GetStockReport(ctx context.Context) ([]entity.StockReport, error)
 
 	GetAllProducts(ctx context.Context) ([]entity.ProductWithSupplier, error)
 	GetProductByID(ctx context.Context, id int) (entity.ProductWithSupplier, error)

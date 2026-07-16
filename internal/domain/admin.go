@@ -14,6 +14,9 @@ type AdminUsecase interface {
 	AddProduct(ctx context.Context, product *entity.Product) error
 	UpdateProduct(ctx context.Context, product *entity.Product) error
 	DeleteProduct(ctx context.Context, id int) error
+	AssignCategoryToProduct(ctx context.Context, productID, categoryID int) error
+	GetUserReport(ctx context.Context) ([]entity.UserReport, error)
+	GetStockReport(ctx context.Context) ([]entity.StockReport, error)
 }
 
 // type ProductRepository interface {

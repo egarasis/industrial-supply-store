@@ -27,3 +27,18 @@ type CartItem struct {
 	Quantity    int
 	Subtotal    float64
 }
+
+type UserReport struct {
+	ID          int    `json:"id"`
+	Email       string `json:"email"`
+	CompanyName string `json:"company_name"`
+	ContactName string `json:"contact_name"`
+	TotalOrders int    `json:"total_orders"`
+}
+
+type StockReport struct {
+	ID          int     `json:"id"`
+	ProductName string  `json:"product_name"`
+	Stock       int     `json:"stock"`
+	Price       float64 `json:"price"`
+}

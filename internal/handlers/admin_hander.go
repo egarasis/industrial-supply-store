@@ -27,6 +27,12 @@ func (h *adminHandler) Run() {
 		fmt.Println("2. Add Product")
 		fmt.Println("3. Update Product")
 		fmt.Println("4. Delete Product")
+		fmt.Println("5. List Orders")
+		fmt.Println("6. Update Status Orders to Completed")
+		fmt.Println("7. Report Completed Orders")
+		fmt.Println("8. Assign Category to Product")
+		fmt.Println("9. User Report - Paling Banyak Belanja")
+		fmt.Println("10. Stock Report - Stok Habis/0")
 		fmt.Println("0. Logout")
 
 		fmt.Print("Choose : ")
@@ -43,6 +49,18 @@ func (h *adminHandler) Run() {
 			h.updateProduct()
 		case 4:
 			h.deleteProduct()
+		case 5:
+			fmt.Println("\n[Menu ini sedang dikerjakan oleh Kesaa]")
+		case 6:
+			fmt.Println("\n[Menu ini sedang dikerjakan oleh Kesaa]")
+		case 7:
+			fmt.Println("\n[Menu ini sedang dikerjakan oleh Kesaa]")
+		case 8:
+			h.assignCategoryMenu()
+		case 9:
+			h.showUserReport()
+		case 10:
+			h.showStockReport()
 		case 0:
 			fmt.Println("Logout...")
 			return
@@ -161,7 +179,6 @@ func (h *adminHandler) deleteProduct() {
 	fmt.Println("Product deleted successfully!")
 }
 
-// Fungsi pembantu untuk format Rupiah
 func formatRupiah(amount float64) string {
 	s := fmt.Sprintf("%.0f", amount)
 	var result []string
@@ -176,31 +193,77 @@ func formatRupiah(amount float64) string {
 	return "Rp " + strings.Join(result, ".")
 }
 
-func (h *adminHandler) UpdateOrderStatus() {
+// =========================================================================
+// HANDLER CLI UNTUK ASSIGN CATEGORY, USER REPORT, & STOCK REPORT
+// =========================================================================
 
-	// 	ctx := context.Background()
+func (h *adminHandler) assignCategoryMenu() {
+	fmt.Println("\n--- Assign Category to Product ---")
+	var productID int
+	var categoryID int
 
-	// 	reader := bufio.NewReader(os.Stdin)
+	fmt.Print("Product ID   : ")
+	fmt.Scanln(&productID)
+	fmt.Print("Category ID  : ")
+	fmt.Scanln(&categoryID)
 
-	// 	var orderID int
-	// 	var status string
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
-	// 	fmt.Print("Order ID : ")
-	// 	fmt.Fscanln(reader, &orderID)
+	err := h.uc.AssignCategoryToProduct(ctx, productID, categoryID)
+	if err != nil {
+		fmt.Printf("Error assigning category: %v\n", err)
+		return
+	}
 
-	// 	fmt.Print("Status (Pending/Processing/Shipped/Completed): ")
-	// 	fmt.Fscanln(reader, &status)
+	fmt.Println("Category assigned successfully!")
+}
 
-	// 	err := h.orderUC.UpdateOrderStatus(
-	// 		ctx,
-	// 		orderID,
-	// 		status,
-	// 	)
+func (h *adminHandler) showUserReport() {
+	fmt.Println("\n--- User Report (Most Active Buyers) ---")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
-	// 	if err != nil {
-	// 		fmt.Println(err)
-	// 		return
-	// 	}
+	reports, err := h.uc.GetUserReport(ctx)
+	if err != nil {
+		fmt.Printf("Error get user report: %v\n", err)
+		return
+	}
 
-	// fmt.Println("Order Updated Successfully")
+	if len(reports) == 0 {
+		fmt.Println("No user reports available.")
+		return
+	}
+
+	fmt.Printf("%-5s | %-25s | %-20s | %-15s | %-12s\n", "ID", "Email Customer", "Nama Perusahaan", "Nama Kontak", "Total Order")
+	fmt.Println("---------------------------------------------------------------------------------------------------")
+
+	for _, ur := range reports {
+		fmt.Printf("%-5d | %-25s | %-20s | %-15s | %-12d\n", ur.ID, ur.Email, ur.CompanyName, ur.ContactName, ur.TotalOrders)
+	}
+}
+
+func (h *adminHandler) showStockReport() {
+	fmt.Println("\n--- Stock Report (Out of Stock / 0) ---")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	reports, err := h.uc.GetStockReport(ctx)
+	if err != nil {
+		fmt.Printf("Error get stock report: %v\n", err)
+		return
+	}
+
+	if len(reports) == 0 {
+		fmt.Println("No products out of stock (Stock = 0).")
+		return
+	}
+
+	fmt.Printf("%-5s | %-25s | %-10s | %-15s\n", "ID", "Product Name", "Stock", "Price")
+	fmt.Println("-----------------------------------------------------------------------------")
+
+	for _, sr := range reports {
+		priceFormatted := formatRupiah(sr.Price)
+		fmt.Printf("%-5d | %-25s | %-10d | %-15s\n", sr.ID, sr.ProductName, sr.Stock, priceFormatted)
+	}
 }

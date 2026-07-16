@@ -32,3 +32,15 @@ func (u *adminUsecase) UpdateProduct(ctx context.Context, product *entity.Produc
 func (u *adminUsecase) DeleteProduct(ctx context.Context, id int) error {
 	return u.productRepo.Delete(ctx, id)
 }
+
+func (u *adminUsecase) AssignCategoryToProduct(ctx context.Context, productID, categoryID int) error {
+	return u.productRepo.AssignCategory(ctx, productID, categoryID)
+}
+
+func (u *adminUsecase) GetUserReport(ctx context.Context) ([]entity.UserReport, error) {
+	return u.productRepo.GetUserReport(ctx)
+}
+
+func (u *adminUsecase) GetStockReport(ctx context.Context) ([]entity.StockReport, error) {
+	return u.productRepo.GetStockReport(ctx)
+}
