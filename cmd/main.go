@@ -23,17 +23,15 @@ func main() {
 
 	// Usecase
 	ucUser := usecase.NewUserUsecase(repoUser)
-<<<<<<< HEAD
-	ucAdmin := usecase.NewAdminUsecase(repoProduct)
-	ucCustomer := usecase.NewCustomerUsecase(db, repoOrder, repoProduct, repoUser)
-=======
 	ucAdmin := usecase.NewAdminUsecase(repoProduct, repoOrder)
-	ucCustomer := usecase.NewCustomerUsecase(db, repoOrder, repoProduct)
->>>>>>> a9d2308fdc4245458fd69dd2b7b286b0217a42fc
+	ucCustomer := usecase.NewCustomerUsecase(db, repoOrder, repoProduct, repoUser)
 
 	// handler
 	handlerAdmin := handlers.NewAdminHandler(ucAdmin, ucUser)
-	handlerCustomer := handlers.NewCustomerHandler(ucCustomer)
+
+	// PERBAIKAN DI SINI: Tambahkan ucUser sebagai parameter kedua
+	handlerCustomer := handlers.NewCustomerHandler(ucCustomer, ucUser)
+
 	handler := handlers.NewUserHandler(ucUser, handlerAdmin, handlerCustomer)
 
 	handler.Run()

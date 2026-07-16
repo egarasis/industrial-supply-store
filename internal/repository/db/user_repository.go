@@ -90,17 +90,37 @@ func (r *UserRepository) Delete(ctx context.Context, id int) error {
 	return err
 }
 
+// Ganti bagian ini: func (r *userRepository)
+// Menjadi: func (r *UserRepository)
+
 func (r *UserRepository) UpdateProfile(ctx context.Context, profile entity.UserProfile) error {
+	// Query diperbarui agar mencakup contact_name, phone, dan address
 	query := `
-        INSERT INTO user_profiles (user_id, full_name, company_name) 
-        VALUES (?, ?, ?) 
-        ON DUPLICATE KEY UPDATE full_name = VALUES(full_name), company_name = VALUES(company_name)
+        INSERT INTO user_profiles (user_id, full_name, company_name, contact_name, phone, address)
+        VALUES (?, ?, ?, ?, ?, ?)
+        ON DUPLICATE KEY UPDATE 
+            full_name = ?, 
+            company_name = ?,
+            contact_name = ?,
+            phone = ?,
+            address = ?;
     `
 
-	_, err := r.db.ExecContext(ctx, query, profile.UserID, profile.FullName, profile.CompanyName)
-	if err != nil {
-		return err
-	}
+	_, err := r.db.ExecContext(
+		ctx,
+		query,
+		profile.UserID,
+		profile.FullName,
+		profile.CompanyName,
+		profile.ContactName, // Parameter insert
+		profile.Phone,       // Parameter insert
+		profile.Address,     // Parameter insert
+		profile.FullName,    // Parameter update (jika data user sudah ada)
+		profile.CompanyName, // Parameter update (jika data user sudah ada)
+		profile.ContactName, // Parameter update (jika data user sudah ada)
+		profile.Phone,       // Parameter update (jika data user sudah ada)
+		profile.Address,     // Parameter update (jika data user sudah ada)
+	)
 
-	return nil
+	return err
 }

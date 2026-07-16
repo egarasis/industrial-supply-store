@@ -7,16 +7,19 @@ import (
 	"industrial-supply-store/internal/domain"
 	"industrial-supply-store/internal/model/entity"
 	"os"
-	"strings" // Tambahkan import ini untuk trim string
+	"strings"
 )
 
 type CustomerHandler struct {
 	orderUC domain.OrderUsecase
+	userUC  domain.UserUsecase // 1. Kita tambahkan dependency UserUsecase di sini
 }
 
-func NewCustomerHandler(orderUC domain.OrderUsecase) domain.CustomerHandler {
+// 2. Constructor sekarang menerima userUC agar bisa update profile dengan benar
+func NewCustomerHandler(orderUC domain.OrderUsecase, userUC domain.UserUsecase) domain.CustomerHandler {
 	return &CustomerHandler{
 		orderUC: orderUC,
+		userUC:  userUC,
 	}
 }
 
@@ -27,7 +30,7 @@ func (h *CustomerHandler) Run(userID int) {
 		fmt.Println("2. Checkout")
 		fmt.Println("3. My Orders")
 		fmt.Println("4. Order Detail")
-		fmt.Println("5. Update Profile") // Menu Baru
+		fmt.Println("5. Update Profile")
 		fmt.Println("0. Logout")
 
 		fmt.Print("Choose : ")
@@ -40,7 +43,8 @@ func (h *CustomerHandler) Run(userID int) {
 			h.viewProducts()
 
 		case 2:
-			h.checkout(userID)
+			// 3. Diperbaiki: memanggil Checkout (C besar) untuk belanja asli
+			h.Checkout(userID)
 
 		case 3:
 			h.getMyOrders(userID)
@@ -49,7 +53,8 @@ func (h *CustomerHandler) Run(userID int) {
 			h.getOrderDetail(userID)
 
 		case 5:
-			h.UpdateProfile(userID) // Fungsi Baru
+			// 4. Diperbaiki: memanggil updateProfile (u kecil) untuk ganti nama/perusahaan
+			h.updateProfile(userID)
 
 		case 0:
 			fmt.Println("Logout...")
@@ -61,15 +66,13 @@ func (h *CustomerHandler) Run(userID int) {
 	}
 }
 
-<<<<<<< HEAD
-// Tambahkan Fungsi Baru Ini
-func (h *CustomerHandler) UpdateProfile(userID int) {
+// 5. Diperbaiki: Nama diubah dari checkout menjadi updateProfile agar sesuai fungsinya
+func (h *CustomerHandler) updateProfile(userID int) {
 	reader := bufio.NewReader(os.Stdin)
-=======
-func (h *CustomerHandler) checkout(userID int) {
->>>>>>> a9d2308fdc4245458fd69dd2b7b286b0217a42fc
 
-	fmt.Print("Enter Full Name: ")
+	fmt.Println("\n===== UPDATE PROFILE =====")
+
+	fmt.Print("Enter Full Name   : ")
 	fullName, _ := reader.ReadString('\n')
 	fullName = strings.TrimSpace(fullName)
 
@@ -77,9 +80,31 @@ func (h *CustomerHandler) checkout(userID int) {
 	companyName, _ := reader.ReadString('\n')
 	companyName = strings.TrimSpace(companyName)
 
+	// --- TAMBAHKAN 3 BARIS INPUT BARU INI ---
+	fmt.Print("Enter Contact Name: ")
+	contactName, _ := reader.ReadString('\n')
+	contactName = strings.TrimSpace(contactName)
+
+	fmt.Print("Enter Phone Number: ")
+	phone, _ := reader.ReadString('\n')
+	phone = strings.TrimSpace(phone)
+
+	fmt.Print("Enter Address     : ")
+	address, _ := reader.ReadString('\n')
+	address = strings.TrimSpace(address)
+	// ----------------------------------------
+
 	ctx := context.Background()
-	// Pastikan method ini sudah ada di interface OrderUsecase kamu
-	err := h.orderUC.UpdateProfile(ctx, userID, fullName, companyName)
+
+	// Pastikan semua variabel baru dikirim ke usecase
+	err := h.userUC.UpdateProfile(ctx, entity.UserProfile{
+		UserID:      userID,
+		FullName:    fullName,
+		CompanyName: companyName,
+		ContactName: contactName, // <-- masukkan ini
+		Phone:       phone,       // <-- masukkan ini
+		Address:     address,     // <-- masukkan ini
+	})
 
 	if err != nil {
 		fmt.Println("Error updating profile:", err)
@@ -133,12 +158,7 @@ func (h *CustomerHandler) Checkout(userID int) {
 	fmt.Println("Checkout Success")
 }
 
-<<<<<<< HEAD
-func (h *CustomerHandler) GetMyOrders(userID int) {
-=======
 func (h *CustomerHandler) getMyOrders(userID int) {
-
->>>>>>> a9d2308fdc4245458fd69dd2b7b286b0217a42fc
 	ctx := context.Background()
 
 	orders, err := h.orderUC.GetMyOrders(
@@ -171,12 +191,7 @@ func (h *CustomerHandler) getMyOrders(userID int) {
 	}
 }
 
-<<<<<<< HEAD
-func (h *CustomerHandler) GetOrderDetail() {
-=======
 func (h *CustomerHandler) getOrderDetail(userID int) {
-
->>>>>>> a9d2308fdc4245458fd69dd2b7b286b0217a42fc
 	ctx := context.Background()
 	reader := bufio.NewReader(os.Stdin)
 

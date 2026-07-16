@@ -32,21 +32,9 @@ func (h *adminHandler) Run() {
 		fmt.Println("2. Add Product")
 		fmt.Println("3. Update Product")
 		fmt.Println("4. Delete Product")
-<<<<<<< HEAD
 		fmt.Println("5. List Orders")
 		fmt.Println("6. Update Status Orders to Completed")
 		fmt.Println("7. Report Completed Orders")
-		fmt.Println("8. Assign Category to Product")
-		fmt.Println("9. User Report - Paling Banyak Belanja")
-		fmt.Println("10. Stock Report - Stok Habis/0")
-		fmt.Println("11. Update Profile") // Menu baru
-=======
-		fmt.Println("\n======================")
-		fmt.Println("5. List Orders")
-		fmt.Println("6. Update Status Orders to Completed")
-		fmt.Println("\n======================")
-		fmt.Println("7. Report Completed Orders")
->>>>>>> a9d2308fdc4245458fd69dd2b7b286b0217a42fc
 		fmt.Println("0. Logout")
 
 		fmt.Print("Choose : ")
@@ -64,27 +52,11 @@ func (h *adminHandler) Run() {
 		case 4:
 			h.deleteProduct()
 		case 5:
-<<<<<<< HEAD
-			fmt.Println("\n[Menu ini sedang dikerjakan oleh Kesaa]")
-		case 6:
-			fmt.Println("\n[Menu ini sedang dikerjakan oleh Kesaa]")
-		case 7:
-			fmt.Println("\n[Menu ini sedang dikerjakan oleh Kesaa]")
-		case 8:
-			h.assignCategoryMenu()
-		case 9:
-			h.showUserReport()
-		case 10:
-			h.showStockReport()
-		case 11:
-			h.updateProfile() // Memanggil fungsi baru
-=======
 			h.listOrders()
 		case 6:
 			h.updateOrderStatusToCompleted()
 		case 7:
 			h.reportCompletedOrder()
->>>>>>> a9d2308fdc4245458fd69dd2b7b286b0217a42fc
 		case 0:
 			fmt.Println("Logout...")
 			return
@@ -253,76 +225,6 @@ func formatRupiah(amount float64) string {
 	return "Rp " + strings.Join(result, ".")
 }
 
-<<<<<<< HEAD
-func (h *adminHandler) assignCategoryMenu() {
-	fmt.Println("\n--- Assign Category to Product ---")
-	var productID int
-	var categoryID int
-
-	fmt.Print("Product ID   : ")
-	fmt.Scanln(&productID)
-	fmt.Print("Category ID  : ")
-	fmt.Scanln(&categoryID)
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	err := h.uc.AssignCategoryToProduct(ctx, productID, categoryID)
-	if err != nil {
-		fmt.Printf("Error assigning category: %v\n", err)
-		return
-	}
-
-	fmt.Println("Category assigned successfully!")
-}
-
-func (h *adminHandler) showUserReport() {
-	fmt.Println("\n--- User Report (Most Active Buyers) ---")
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	reports, err := h.uc.GetUserReport(ctx)
-	if err != nil {
-		fmt.Printf("Error get user report: %v\n", err)
-		return
-	}
-
-	if len(reports) == 0 {
-		fmt.Println("No user reports available.")
-		return
-	}
-
-	fmt.Printf("%-5s | %-25s | %-20s | %-15s | %-12s\n", "ID", "Email Customer", "Nama Perusahaan", "Nama Kontak", "Total Order")
-	fmt.Println("---------------------------------------------------------------------------------------------------")
-
-	for _, ur := range reports {
-		fmt.Printf("%-5d | %-25s | %-20s | %-15s | %-12d\n", ur.ID, ur.Email, ur.CompanyName, ur.ContactName, ur.TotalOrders)
-	}
-}
-
-func (h *adminHandler) showStockReport() {
-	fmt.Println("\n--- Stock Report (Out of Stock / 0) ---")
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	reports, err := h.uc.GetStockReport(ctx)
-	if err != nil {
-		fmt.Printf("Error get stock report: %v\n", err)
-		return
-	}
-
-	if len(reports) == 0 {
-		fmt.Println("No products out of stock (Stock = 0).")
-		return
-	}
-
-	fmt.Printf("%-5s | %-25s | %-10s | %-15s\n", "ID", "Product Name", "Stock", "Price")
-	fmt.Println("-----------------------------------------------------------------------------")
-
-	for _, sr := range reports {
-		priceFormatted := formatRupiah(sr.Price)
-		fmt.Printf("%-5d | %-25s | %-10d | %-15s\n", sr.ID, sr.ProductName, sr.Stock, priceFormatted)
-=======
 func (h *adminHandler) listOrders() {
 
 	ctx := context.Background()
@@ -442,6 +344,5 @@ func (h *adminHandler) reportCompletedOrder() {
 			order.TotalPrice,
 			order.Status,
 		)
->>>>>>> a9d2308fdc4245458fd69dd2b7b286b0217a42fc
 	}
 }

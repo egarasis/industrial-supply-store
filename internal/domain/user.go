@@ -20,10 +20,7 @@ type UserUsecase interface {
 	Register(email, password, role string) error
 	GetAll() ([]entity.User, error)
 	GetByID(id int) (*entity.User, error)
-<<<<<<< HEAD
-	UpdateProfile(ctx context.Context, profile entity.UserProfile) error // TAMBAHKAN INI
-=======
->>>>>>> a9d2308fdc4245458fd69dd2b7b286b0217a42fc
+	UpdateProfile(ctx context.Context, profile entity.UserProfile) error
 }
 
 type AuthUsecase interface {
