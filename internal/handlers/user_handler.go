@@ -7,12 +7,14 @@ import (
 	"industrial-supply-store/internal/model/entity"
 	"os"
 	"strings"
+
+	"golang.org/x/term"
 )
 
 type userHandler struct {
-	uc           domain.UserUsecase
-	adminHandler domain.AdminHandler
-	customerHandler  domain.CustomerHandler
+	uc              domain.UserUsecase
+	adminHandler    domain.AdminHandler
+	customerHandler domain.CustomerHandler
 }
 
 func NewUserHandler(
@@ -29,7 +31,7 @@ func NewUserHandler(
 
 func (h *userHandler) Run() {
 	for {
-		fmt.Println("\n===== Welcome =====")
+		fmt.Println("\n===== Welcome To Industrial Tool Store =====")
 		fmt.Println("1. Login")
 		fmt.Println("2. Register")
 		fmt.Println("0. Exit")
@@ -61,13 +63,19 @@ func (h *userHandler) create() {
 	email, _ := reader.ReadString('\n')
 
 	fmt.Print("Password : ")
-	password, _ := reader.ReadString('\n')
+	// To make it invisible when input
+	passwordBytes, passErr := term.ReadPassword(int(os.Stdin.Fd()))
+	if passErr != nil {
+		fmt.Println("Error:", passErr)
+		return
+	}
+	fmt.Println()
 
 	fmt.Print("Role (ADMIN, CUSTOMER): ")
 	role, _ := reader.ReadString('\n')
 
 	email = strings.TrimSpace(email)
-	password = strings.TrimSpace(password)
+	password := strings.TrimSpace(string(passwordBytes))
 	role = strings.TrimSpace(role)
 
 	err := h.uc.Register(email, password, role)
@@ -86,10 +94,15 @@ func (h *userHandler) login() {
 	email, _ := reader.ReadString('\n')
 
 	fmt.Print("Password : ")
-	password, _ := reader.ReadString('\n')
+	passwordBytes, passErr := term.ReadPassword(int(os.Stdin.Fd()))
+	if passErr != nil {
+		fmt.Println("Error:", passErr)
+		return
+	}
+	fmt.Println()
 
 	email = strings.TrimSpace(email)
-	password = strings.TrimSpace(password)
+	password := strings.TrimSpace(string(passwordBytes))
 
 	user, err := h.uc.Login(email, password)
 	if err != nil {

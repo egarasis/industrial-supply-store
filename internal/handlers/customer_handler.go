@@ -38,13 +38,13 @@ func (h *CustomerHandler) Run(userID int) {
 			h.viewProducts()
 
 		case 2:
-			h.Checkout(userID)
+			h.checkout(userID)
 
 		case 3:
-			h.GetMyOrders(userID)
+			h.getMyOrders(userID)
 
 		case 4:
-			h.GetOrderDetail()
+			h.getOrderDetail(userID)
 
 		case 0:
 			fmt.Println("Logout...")
@@ -56,7 +56,7 @@ func (h *CustomerHandler) Run(userID int) {
 	}
 }
 
-func (h *CustomerHandler) Checkout(userID int) {
+func (h *CustomerHandler) checkout(userID int) {
 
 	ctx := context.Background()
 	reader := bufio.NewReader(os.Stdin)
@@ -102,7 +102,7 @@ func (h *CustomerHandler) Checkout(userID int) {
 	fmt.Println("Checkout Success")
 }
 
-func (h *CustomerHandler) GetMyOrders(userID int) {
+func (h *CustomerHandler) getMyOrders(userID int) {
 
 	ctx := context.Background()
 
@@ -140,7 +140,7 @@ func (h *CustomerHandler) GetMyOrders(userID int) {
 	}
 }
 
-func (h *CustomerHandler) GetOrderDetail() {
+func (h *CustomerHandler) getOrderDetail(userID int) {
 
 	ctx := context.Background()
 
@@ -154,6 +154,7 @@ func (h *CustomerHandler) GetOrderDetail() {
 	items, err := h.orderUC.GetOrderDetail(
 		ctx,
 		orderID,
+		userID,
 	)
 
 	if err != nil {

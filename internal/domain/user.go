@@ -19,8 +19,6 @@ type UserUsecase interface {
 	Register(email, password, role string) error
 	GetAll() ([]entity.User, error)
 	GetByID(id int) (*entity.User, error)
-	// Update(id int, name, email string) error
-	// Delete(id int) error
 }
 
 type AuthUsecase interface {

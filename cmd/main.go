@@ -23,7 +23,7 @@ func main() {
 
 	// Usecase
 	ucUser := usecase.NewUserUsecase(repoUser)
-	ucAdmin := usecase.NewAdminUsecase(repoProduct)
+	ucAdmin := usecase.NewAdminUsecase(repoProduct, repoOrder)
 	ucCustomer := usecase.NewCustomerUsecase(db, repoOrder, repoProduct)
 
 	// handler

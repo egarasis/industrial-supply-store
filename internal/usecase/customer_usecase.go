@@ -120,10 +120,10 @@ func (u *orderUsecase) GetMyOrders(
 
 func (u *orderUsecase) GetOrderDetail(
 	ctx context.Context,
-	orderID int,
+	orderID, userID int,
 ) ([]entity.OrderItem, error) {
 
-	return u.orderRepo.GetOrderItems(ctx, orderID)
+	return u.orderRepo.GetOrderItems(ctx, orderID, userID)
 }
 
 func (u *orderUsecase) UpdateOrderStatus(
