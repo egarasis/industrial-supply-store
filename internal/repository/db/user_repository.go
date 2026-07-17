@@ -194,7 +194,7 @@ func (r *userRepository) GetTopUser(ctx context.Context) ([]entity.UserReport, e
 	query := `
 	SELECT
 		u.id,
-		u.username,
+		u.email,
 		COUNT(o.id) AS total_order,
 		COALESCE(SUM(o.total_price),0) AS total_spent
 	FROM users u
@@ -202,7 +202,7 @@ func (r *userRepository) GetTopUser(ctx context.Context) ([]entity.UserReport, e
 		ON u.id = o.user_id
 	GROUP BY
 		u.id,
-		u.username
+		u.email
 	ORDER BY total_spent DESC;
 	`
 
@@ -219,7 +219,7 @@ func (r *userRepository) GetTopUser(ctx context.Context) ([]entity.UserReport, e
 
 		err := rows.Scan(
 			&rpt.UserID,
-			&rpt.Username,
+			&rpt.Email,
 			&rpt.TotalOrder,
 			&rpt.TotalSpent,
 		)

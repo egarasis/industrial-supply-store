@@ -39,6 +39,8 @@ func (h *adminHandler) Run() {
 		fmt.Println("9. Assign Category to Product")
 		fmt.Println("\n======================")
 		fmt.Println("10. Report Completed Orders")
+		fmt.Println("11. Report Top Purcase Users")
+		fmt.Println("12. Report Out of Stock Products")
 		fmt.Println("0. Logout")
 
 		fmt.Print("Choose : ")
@@ -67,6 +69,10 @@ func (h *adminHandler) Run() {
 			h.assignCategory()
 		case 10:
 			h.reportCompletedOrder()
+		case 11:
+			h.topUserReport()
+		case 12:
+			h.outOfStockReport()
 		case 0:
 			fmt.Println("Logout...")
 			return
@@ -496,4 +502,54 @@ func (h *adminHandler) assignCategory() {
 	}
 
 	fmt.Println("Category assigned successfully.")
+}
+
+func (h *adminHandler) topUserReport() {
+
+	users, err := h.uc.GetTopUser(context.Background())
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println("\n========== USER REPORT ==========")
+
+	fmt.Printf("%-5s %-20s %-15s %-15s\n",
+		"ID",
+		"Username",
+		"Orders",
+		"Total Spent")
+
+	for _, u := range users {
+
+		fmt.Printf("%-5d %-20s %-15d Rp %.2f\n",
+			u.UserID,
+			u.Email,
+			u.TotalOrder,
+			u.TotalSpent)
+	}
+}
+
+func (h *adminHandler) outOfStockReport() {
+
+	products, err := h.uc.GetOutOfStock(context.Background())
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println("\n======= OUT OF STOCK =======")
+
+	fmt.Printf("%-5s %-30s %-10s\n",
+		"ID",
+		"Product",
+		"Stock")
+
+	for _, p := range products {
+
+		fmt.Printf("%-5d %-30s %-10d\n",
+			p.ProductID,
+			p.ProductName,
+			p.Stock)
+	}
 }

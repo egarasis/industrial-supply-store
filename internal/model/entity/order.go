@@ -35,7 +35,7 @@ type OrderWithUser struct {
 
 type UserReport struct {
 	UserID     int
-	Username   string
+	Email      string
 	TotalOrder int
 	TotalSpent float64
 }

@@ -9,20 +9,23 @@ import (
 )
 
 type adminUsecase struct {
-	productRepo domain.ProductRepository
-	orderRepo   domain.OrderRepository
-	categoryRepo   domain.CategoryRepository
+	productRepo  domain.ProductRepository
+	orderRepo    domain.OrderRepository
+	categoryRepo domain.CategoryRepository
+	userRepo     domain.UserRepository
 }
 
 func NewAdminUsecase(
-	productRepo domain.ProductRepository, 
+	productRepo domain.ProductRepository,
 	orderRepo domain.OrderRepository,
 	categoryRepo domain.CategoryRepository,
-	) domain.AdminUsecase {
+	userRepo domain.UserRepository,
+) domain.AdminUsecase {
 	return &adminUsecase{
-		productRepo: productRepo,
-		orderRepo:   orderRepo,
+		productRepo:  productRepo,
+		orderRepo:    orderRepo,
 		categoryRepo: categoryRepo,
+		userRepo:     userRepo,
 	}
 }
 
@@ -144,4 +147,12 @@ func (u *adminUsecase) AssignCategory(ctx context.Context, pc entity.ProductCate
 	}
 
 	return u.categoryRepo.AssignCategory(ctx, pc)
+}
+
+func (u *adminUsecase) GetTopUser(ctx context.Context) ([]entity.UserReport, error) {
+	return u.userRepo.GetTopUser(ctx)
+}
+
+func (u *adminUsecase) GetOutOfStock(ctx context.Context) ([]entity.StockReport, error) {
+	return u.productRepo.GetOutOfStock(ctx)
 }
