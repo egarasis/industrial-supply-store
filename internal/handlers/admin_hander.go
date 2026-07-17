@@ -1,8 +1,11 @@
 package handlers
 
 import (
+	"bufio"
 	"context"
 	"fmt"
+	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -31,7 +34,11 @@ func (h *adminHandler) Run() {
 		fmt.Println("5. List Orders")
 		fmt.Println("6. Update Status Orders to Completed")
 		fmt.Println("\n======================")
-		fmt.Println("7. Report Completed Orders")
+		fmt.Println("7. List Category")
+		fmt.Println("8. Add Category")
+		fmt.Println("9. Assign Category to Product")
+		fmt.Println("\n======================")
+		fmt.Println("10. Report Completed Orders")
 		fmt.Println("0. Logout")
 
 		fmt.Print("Choose : ")
@@ -41,18 +48,24 @@ func (h *adminHandler) Run() {
 
 		switch choice {
 		case 1:
-			h.listProducts()
+			h.newListProducts()
 		case 2:
-			h.addProduct()
+			h.newCreateProduct()
 		case 3:
-			h.updateProduct()
+			h.newUpdateProduct()
 		case 4:
-			h.deleteProduct()
+			h.newDeleteProduct()
 		case 5:
 			h.listOrders()
 		case 6:
 			h.updateOrderStatusToCompleted()
 		case 7:
+			h.listCategories()
+		case 8:
+			h.addCategory()
+		case 9:
+			h.assignCategory()
+		case 10:
 			h.reportCompletedOrder()
 		case 0:
 			fmt.Println("Logout...")
@@ -307,4 +320,180 @@ func (h *adminHandler) reportCompletedOrder() {
 			order.Status,
 		)
 	}
+}
+
+func (h *adminHandler) newCreateProduct() {
+
+	reader := bufio.NewReader(os.Stdin)
+	var product entity.ProductWithSupplier
+
+	fmt.Print("Supplier ID      : ")
+	input, _ := reader.ReadString('\n')
+	product.SupplierID, _ = strconv.Atoi(strings.TrimSpace(input))
+
+	fmt.Print("Product Name     : ")
+	product.ProductName, _ = reader.ReadString('\n')
+	product.ProductName = strings.TrimSpace(product.ProductName)
+
+	fmt.Print("Description      : ")
+	product.Description, _ = reader.ReadString('\n')
+	product.Description = strings.TrimSpace(product.Description)
+
+	fmt.Print("Price            : ")
+	input, _ = reader.ReadString('\n')
+	product.Price, _ = strconv.ParseFloat(strings.TrimSpace(input), 64)
+
+	fmt.Print("Stock            : ")
+	input, _ = reader.ReadString('\n')
+	product.Stock, _ = strconv.Atoi(strings.TrimSpace(input))
+
+	err := h.uc.NewCreateProduct(context.Background(), product)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println("Product created successfully.")
+}
+
+func (h *adminHandler) newUpdateProduct() {
+	reader := bufio.NewReader(os.Stdin)
+	var product entity.ProductWithSupplier
+
+	fmt.Print("Product ID       : ")
+	input, _ := reader.ReadString('\n')
+	product.ID, _ = strconv.Atoi(strings.TrimSpace(input))
+
+	fmt.Print("Supplier ID      : ")
+	input, _ = reader.ReadString('\n')
+	product.SupplierID, _ = strconv.Atoi(strings.TrimSpace(input))
+
+	fmt.Print("Product Name     : ")
+	product.ProductName, _ = reader.ReadString('\n')
+	product.ProductName = strings.TrimSpace(product.ProductName)
+
+	fmt.Print("Description      : ")
+	product.Description, _ = reader.ReadString('\n')
+	product.Description = strings.TrimSpace(product.Description)
+
+	fmt.Print("Price            : ")
+	input, _ = reader.ReadString('\n')
+	product.Price, _ = strconv.ParseFloat(strings.TrimSpace(input), 64)
+
+	fmt.Print("Stock            : ")
+	input, _ = reader.ReadString('\n')
+	product.Stock, _ = strconv.Atoi(strings.TrimSpace(input))
+
+	err := h.uc.NewUpdateProduct(context.Background(), product)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println("Product updated successfully.")
+}
+
+func (h *adminHandler) newDeleteProduct() {
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Print("Product ID : ")
+
+	input, _ := reader.ReadString('\n')
+	id, _ := strconv.Atoi(strings.TrimSpace(input))
+
+	err := h.uc.NewDeleteProduct(context.Background(), id)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println("Product deleted successfully.")
+}
+
+func (h *adminHandler) newListProducts() {
+
+	products, err := h.uc.NewListProducts(context.Background())
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	if len(products) == 0 {
+		fmt.Println("No products found.")
+		return
+	}
+
+	fmt.Println("\n==================== PRODUCT LIST ====================")
+
+	fmt.Printf("%-5s %-20s %-20s %-12s %-8s\n",
+		"ID",
+		"Product",
+		"Supplier",
+		"Price",
+		"Stock",
+	)
+
+	fmt.Println("--------------------------------------------------------------")
+
+	for _, p := range products {
+		fmt.Printf(
+			"%-5d %-20s %-20s %-12.2f %-8d\n",
+			p.ID,
+			p.ProductName,
+			p.SupplierName,
+			p.Price,
+			p.Stock,
+		)
+	}
+}
+
+func (h *adminHandler) listCategories() {
+
+	categories, err := h.uc.GetAllCategories(context.Background())
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println("\n==================== CATEGORY LIST ====================")
+	for _, c := range categories {
+		fmt.Printf("%d. %s\n", c.ID, c.CategoryName)
+	}
+}
+
+func (h *adminHandler) addCategory() {
+	reader := bufio.NewReader(os.Stdin)
+	var c entity.Category
+
+	fmt.Print("Category Name : ")
+	c.CategoryName, _ = reader.ReadString('\n')
+	c.CategoryName = strings.TrimSpace(c.CategoryName)
+
+	err := h.uc.CreateCategory(context.Background(), c)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println("Category created successfully.")
+}
+
+func (h *adminHandler) assignCategory() {
+	reader := bufio.NewReader(os.Stdin)
+	var pc entity.ProductCategory
+
+	fmt.Print("Product ID : ")
+	input, _ := reader.ReadString('\n')
+	pc.ProductID, _ = strconv.Atoi(strings.TrimSpace(input))
+
+	fmt.Print("Category ID : ")
+	input, _ = reader.ReadString('\n')
+	pc.CategoryID, _ = strconv.Atoi(strings.TrimSpace(input))
+
+	err := h.uc.AssignCategory(context.Background(), pc)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println("Category assigned successfully.")
 }

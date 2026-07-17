@@ -20,10 +20,11 @@ func main() {
 	repoUser := dbrepo.NewUserRepository(db)
 	repoProduct := dbrepo.NewProductRepository(db)
 	repoOrder := dbrepo.NewOrderRepository(db, repoProduct)
+	repoCategory := dbrepo.NewCategoryRepository(db)
 
 	// Usecase
 	ucUser := usecase.NewUserUsecase(repoUser)
-	ucAdmin := usecase.NewAdminUsecase(repoProduct, repoOrder)
+	ucAdmin := usecase.NewAdminUsecase(repoProduct, repoOrder, repoCategory)
 	ucCustomer := usecase.NewCustomerUsecase(repoOrder, repoProduct)
 
 	// handler

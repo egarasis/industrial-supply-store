@@ -32,3 +32,10 @@ type OrderWithUser struct {
 	Status     string
 	CreatedAt  time.Time
 }
+
+type UserReport struct {
+	UserID     int
+	Username   string
+	TotalOrder int
+	TotalSpent float64
+}

@@ -18,4 +18,6 @@ type ProductRepository interface {
 	UpdateProduct(ctx context.Context, product entity.ProductWithSupplier) error
 	DeleteProduct(ctx context.Context, id int) error
 	UpdateStock(ctx context.Context, tx *sql.Tx, productID int, qty int) error
+
+	GetOutOfStock(ctx context.Context) ([]entity.StockReport, error)
 }

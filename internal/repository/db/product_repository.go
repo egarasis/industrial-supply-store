@@ -277,3 +277,43 @@ func (r *productRepository) UpdateStock(
 
 	return nil
 }
+
+func (r *productRepository) GetOutOfStock(ctx context.Context) ([]entity.StockReport, error) {
+
+	query := `
+	SELECT
+		id,
+		product_name,
+		stock
+	FROM products
+	WHERE stock = 0
+	ORDER BY product_name;
+	`
+
+	rows, err := r.db.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var reports []entity.StockReport
+
+	for rows.Next() {
+
+		var rpt entity.StockReport
+
+		err := rows.Scan(
+			&rpt.ProductID,
+			&rpt.ProductName,
+			&rpt.Stock,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		reports = append(reports, rpt)
+	}
+
+	return reports, nil
+}

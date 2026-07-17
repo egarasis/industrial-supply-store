@@ -27,3 +27,18 @@ type CartItem struct {
 	Quantity    int
 	Subtotal    float64
 }
+
+type ProductRepo struct {
+	ID          int
+	SupplierID  int
+	ProductName string
+	Description string
+	Price       float64
+	Stock       int
+}
+
+type StockReport struct {
+	ProductID   int
+	ProductName string
+	Stock       int
+}

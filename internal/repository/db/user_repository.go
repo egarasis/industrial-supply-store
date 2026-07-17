@@ -188,3 +188,48 @@ func (r *userRepository) Delete(ctx context.Context, id int) error {
 
 	return nil
 }
+
+func (r *userRepository) GetTopUser(ctx context.Context) ([]entity.UserReport, error) {
+
+	query := `
+	SELECT
+		u.id,
+		u.username,
+		COUNT(o.id) AS total_order,
+		COALESCE(SUM(o.total_price),0) AS total_spent
+	FROM users u
+	INNER JOIN orders o
+		ON u.id = o.user_id
+	GROUP BY
+		u.id,
+		u.username
+	ORDER BY total_spent DESC;
+	`
+
+	rows, err := r.db.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var reports []entity.UserReport
+
+	for rows.Next() {
+		var rpt entity.UserReport
+
+		err := rows.Scan(
+			&rpt.UserID,
+			&rpt.Username,
+			&rpt.TotalOrder,
+			&rpt.TotalSpent,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		reports = append(reports, rpt)
+	}
+
+	return reports, nil
+}
