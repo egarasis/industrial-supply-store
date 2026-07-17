@@ -516,7 +516,7 @@ func (h *adminHandler) topUserReport() {
 
 	fmt.Printf("%-5s %-20s %-15s %-15s\n",
 		"ID",
-		"Username",
+		"Email",
 		"Orders",
 		"Total Spent")
 
