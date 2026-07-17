@@ -82,23 +82,3 @@ func (u *userUsecase) GetByID(id int) (*entity.User, error) {
 
 	return u.repo.FindByID(ctx, id)
 }
-
-// func (u *userUsecase) Update(id int, email, email string) error {
-// 	ctx := context.Background()
-
-// 	user := &entity.User{
-// 		ID:    id,
-// 		Name:  name,
-// 		Email: email,
-// 	}
-
-// 	return u.repo.Update(ctx, user)
-// }
-
-// func (u *userUsecase) Delete(id int) error {
-// 	ctx := context.TODO()
-// 	ctx, cancel := context.WithTimeout(ctx, setTimeout)
-// 	defer cancel()
-
-// 	return u.repo.Delete(ctx, id)
-// }

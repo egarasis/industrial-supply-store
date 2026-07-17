@@ -152,10 +152,6 @@ func (r *productRepository) GetProductByID(ctx context.Context, id int) (entity.
 	return product, err
 }
 
-// =====================
-// ADMIN
-// =====================
-
 func (r *productRepository) CreateProduct(ctx context.Context, product entity.ProductWithSupplier) error {
 
 	query := `
@@ -235,10 +231,6 @@ func (r *productRepository) DeleteProduct(ctx context.Context, id int) error {
 
 	return nil
 }
-
-// =====================
-// CHECKOUT
-// =====================
 
 func (r *productRepository) UpdateStock(
 	ctx context.Context,

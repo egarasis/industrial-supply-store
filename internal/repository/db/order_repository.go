@@ -124,8 +124,6 @@ func (r *orderRepository) UpdateOrderTotal(
 	return err
 }
 
-// CUSTOMER
-
 func (r *orderRepository) GetOrdersByUserID(
 	ctx context.Context,
 	userID int,
@@ -254,10 +252,6 @@ func (r *orderRepository) GetOrderItems(
 
 	return details, nil
 }
-
-// =====================
-// ADMIN
-// =====================
 
 func (r *orderRepository) GetAllOrders(
 	ctx context.Context,
